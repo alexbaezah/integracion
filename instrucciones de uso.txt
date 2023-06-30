@@ -1,0 +1,14 @@
+-instalar dependencias de:
+    pip install flask flask-mysql
+-activar en xampp apache y mysql (star a ambos)
+- ir a Admin de MySQL, se abre un dashboard
+-ejecutar el archivo 'correr.sql' en xampp
+-
+
+-situarse en la carpeta raiz del proyecto y ejecutar:
+    python app.py
+
+tupla de usuario para ingresar
+{email: maravaal1312@gmail.com,
+ password: admin   
+}

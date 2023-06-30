@@ -1,0 +1,90 @@
+{% extends 'layout.html' %}
+
+{% block title %} ShoppingList {% endblock %}
+
+
+
+
+{% block body %}
+
+
+
+<div class="container col-md-10">
+    <h1>Listado de productos a comprar</h1>
+</div>
+
+<div class="container col-md-10">
+    <table class="table table-striped table-dark table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <td scope="col">id</td>
+                <td scope="col">nro pedido</td>
+                <td scope="col">nombre</td>
+                <td scope="col">precio unitario</td>
+                <td scope="col">cantidad requerida</td>
+                <td scope="col">subtotal</td>
+                <td scope="col">estado</td>
+            </tr>
+        </thead>
+
+
+
+
+        {% for pedido in lista %}
+
+        <form action="/editar" method="POST">
+            <tbody>
+                <tr>
+                    <td><input type="number" name="id" value="{{ pedido['id'] }}" readonly="readonly"></td>
+                    <td>{{ pedido['nro_pedido'] }}</td>
+                    <td>{{ pedido['nombre'] }}</td>
+                    <td>{{ pedido['precio_unitario'] }}</td>
+                    <td><input type="number" value="{{ pedido['cantidad_requerida'] }}"></td>
+                    <td>{{pedido['sub_total']}}</td>
+
+                    <td>
+                        <button type="submit" class="btn btn-primary">editar cantidad</button>
+                        <a href="/eliminar/{{ pedido['id'] }}" class="btn btn-danger">eliminar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </form>
+
+
+
+
+        {% endfor %}
+    </table>
+
+
+        {% for Total in lista2 %}
+    {% for Dolar in lista3 %}
+        {% if Total['total'] is not none and Dolar['precio_dolar'] is not none %}
+            {% set precio_usd = Total['total'] / Dolar['precio_dolar'] %}
+            <h1>PRECIO USD: $ {{ precio_usd | round(2) }}</h1>
+        {% endif %}
+    {% endfor %}
+    <h1>PRECIO CLP: $ {{ Total['total'] }}</h1>
+
+    <form action="/webpay-plus-mall/create" method="GET">
+        <input type="hidden" name="buy_order" value="{{ nroPago }}">
+        <input type="hidden" name="amount" value="{{ Total['total'] }}">
+        <input type="hidden" name="session_id" value="{{ nroPago }}">
+        <input type="hidden" name="return_url" value="http://mi_sitio.com/retorno">
+        <input type="submit" value="Pagar con Webpay" class="btn btn-success">
+    </form>
+
+    
+    
+{% endfor %}
+
+    
+
+    </form>
+
+</div>
+
+
+
+{% endblock %}
+ 
