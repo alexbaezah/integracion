@@ -8,6 +8,7 @@ import schedule
 import time
 
 import random
+import json
 
 
 from transbank.webpay.webpay_plus.mall_transaction import MallTransaction
@@ -149,6 +150,48 @@ def agregar_producto():
                     (url_img, nombre, precio_unitario, cantidad, descripcion))
         mysql.connection.commit()
         return redirect(url_for('gestorProductos'))
+    
+@app.route('/apiAgregarProducto', methods=['POST'])
+def apiAgregarProducto():
+    if request.method == 'POST':
+        data = request.get_json()
+        url_img = data['url_img']
+        nombre = data['nombre']
+        precio_unitario = data['precio_unitario']
+        cantidad = data['cantidad']
+        descripcion = data['descripcion']
+
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute('INSERT INTO producto(url_img, nombre, precio_unitario, cantidad, descripcion) VALUES (%s, %s, %s, %s, %s)',
+                        (url_img, nombre, precio_unitario, cantidad, descripcion))
+            mysql.connection.commit()
+            cur.close()
+
+            # Create a dictionary with the new product data
+            product_data = {
+                'url_img': url_img,
+                'nombre': nombre,
+                'precio_unitario': precio_unitario,
+                'cantidad': cantidad,
+                'descripcion': descripcion
+            }
+
+            # Convert the dictionary to a JSON string
+            product_json = json.dumps(product_data)
+
+            # Return the JSON response
+            return jsonify(product_json)
+
+        except mysql.connection.IntegrityError as e:
+            error_message = str(e)
+            if "Duplicate entry" in error_message:
+                return "Producto repetido"
+            else:
+                return "Error al crear el producto: " + error_message
+
+        except Exception as e:
+            return "Error al crear el producto: " + str(e)
 
 
 @app.route('/eliminar_producto/<string:id>')
@@ -159,29 +202,59 @@ def eliminar_producto(id):
     flash('eliminado correctamente')
     return redirect(url_for('gestorProductos'))
 
+@app.route('/apiEliminarProducto/<string:id>', methods=['DELETE'])
+def api_eliminar_producto(id):
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT * FROM producto WHERE id = {0}'.format(id))
+    product = cur.fetchone()
 
-@app.route('/actualizar_producto', methods=['POST'])
-def actualizar_producto():
+    if product:
+        cur.execute('DELETE FROM producto WHERE id = {0}'.format(id))
+        mysql.connection.commit()
+        cur.close()
+        response = {
+            'mensaje': 'Producto cuyo id fue eliminado'
+        }
+        return jsonify(response)
+    else:
+        response = {
+            'mensaje': 'Producto no existe, por lo que no puede ser eliminado'
+        }
+        return jsonify(response)
+
+
+
+
+@app.route('/apiActualizarProducto/<int:id>', methods=['POST'])
+def api_actualizar_producto(id):
     if request.method == 'POST':
-
-        id = request.form['id']
-        url_img = request.form['url_img']
-        nombre = request.form['nombre']
-        precio_unitario = request.form['precio_unitario']
-        cantidad = request.form['cantidad']
-        descripcion = request.form['descripcion']
+        data = request.get_json()
+        url_img = data['url_img']
+        nombre = data['nombre']
+        precio_unitario = data['precio_unitario']
+        cantidad = data['cantidad']
+        descripcion = data['descripcion']
 
         cur = mysql.connection.cursor()
 
-        cur.execute('update producto set url_img=%s ,nombre=%s ,precio_unitario=%s ,cantidad=%s ,descripcion=%s where id = %s',
+        cur.execute('UPDATE producto SET url_img=%s, nombre=%s, precio_unitario=%s, cantidad=%s, descripcion=%s WHERE id = %s',
                     (url_img, nombre, precio_unitario, cantidad, descripcion, id))
 
-        print(descripcion)
-
         mysql.connection.commit()
-        return redirect(url_for('gestorProductos'))
+        cur.close()
+
+        response = {
+            'mensaje': 'Producto actualizado correctamente'
+        }
+        return jsonify(response)
     else:
-        return 'no entro ni mierda'
+        response = {
+            'mensaje': 'Producto no pudo ser actualizado'
+        }
+        return jsonify(response)
+
+
+
 
 
 
