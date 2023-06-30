@@ -25,28 +25,7 @@
     <h2>Detalles</h2>
     <hr>
   
-    <label for="details_commerce_code">Detalles de transacción 1</label>
-    <select id="details_commerce_code" name="details[0][commerce_code]">
-      <option selected="selected" value="{{ child_commerce_codes[0] }}"> Comercio 1 - Codigo {{ child_commerce_codes[0] }} </option>
-      <option value="{{ child_commerce_codes[1] }}">Comercio 2 - Codigo {{ child_commerce_codes[1] }} </option>
-    </select>
-  
-    <label for="details_buy_order">Orden de compra (comercio hijo)</label>
-    <input id="details_buy_order" name="details[0][buy_order]" value="{{ 'abcdef' + dt.utcnow().strftime('%S') }}"/>
-  
-    <label for="details_amount">Monto</label>
-    <input id="details_amount" name="details[0][amount]" value="{{ request.args.get('amount') }}"/>
-  
-    <hr>
-  
-    <label for="details_commerce_code">Detalles de transacción 2</label>
-    <select id="details_commerce_code" name="details[1][commerce_code]">
-      <option value="{{ child_commerce_codes[0] }}"> Comercio 1 - Codigo {{ child_commerce_codes[0] }} </option>
-      <option selected="selected" value="{{ child_commerce_codes[1] }}">Comercio 2 - Codigo {{ child_commerce_codes[1] }} </option>
-    </select>
-  
-    <label for="details_buy_order">Orden de compra (comercio hijo)</label>
-    <input id="details_buy_order" name="details[1][buy_order]" value="{{ 'wxyz' + dt.utcnow().strftime('%S')  }}"/>
+ 
   
     <label for="details_amount">Monto</label>
     <input id="details_amount" name="details[1][amount]" value="{{ request.args.get('amount') }}"/>

@@ -10,17 +10,12 @@ import time
 import random
 
 
-
 from transbank.webpay.webpay_plus.mall_transaction import MallTransaction
 from transbank.webpay.webpay_plus.request import MallTransactionCreateDetails
 from transbank.common.integration_commerce_codes import IntegrationCommerceCodes
 from transbank.error.transbank_error import TransbankError
 from datetime import datetime as dt
 from datetime import timedelta
-
-
-
-
 
 Result = []
 
@@ -340,36 +335,50 @@ def show_create():
                            child_commerce_codes=IntegrationCommerceCodes.WEBPAY_PLUS_MALL_CHILD_COMMERCE_CODES)
 
 
+class MallTransaction:
+    def create(self, buy_order, session_id, card_number, card_expiration_date, details, cvv):
+        # Lógica para crear la transacción
+        # Aquí puedes utilizar el argumento card_number en tu lógica
+        
+        # Ejemplo de lógica de creación de transacción
+        response_data = {
+            'status': 'success',
+            'message': 'Transacción creada exitosamente',
+            'transaction_id': '1234567890'
+        }
+        
+        return response_data
+
 @app.route('/webpay-plus-mall/create', methods=['POST'])
-def webpay_plus_mall_create():
+def send_create():
     buy_order = request.form.get('buy_order')
     session_id = request.form.get('session_id')
-    return_url = request.url_root + 'webpay-plus-mall/commit'
-    
-    commerce_code_child_1 = request.form.get('details[0][commerce_code]')
-    buy_order_child_1 = request.form.get('details[0][buy_order]')
-    amount_child_1 = request.form.get('details[0][amount]')
+    card_number = request.form.get('card_number')
+    card_expiration_date = request.form.get('card_expiration_date')
 
-    commerce_code_child_2 = request.form.get('details[1][commerce_code]')
-    buy_order_child_2 = request.form.get('details[1][buy_order]')
-    amount_child_2 = request.form.get('details[1][amount]')
-
-    details = MallTransactionCreateDetails(amount_child_1, commerce_code_child_1, buy_order_child_1) \
-            .add(amount_child_2, commerce_code_child_2, buy_order_child_2)
-
-    response = (MallTransaction()).create(
+    details = [
+        {
+            'commerce_code': request.form.get('details[0][commerce_code]'),
+            'buy_order': request.form.get('details[0][buy_order]'),
+            'amount': request.form.get('details[0][amount]')
+        },
+        {
+            'commerce_code': request.form.get('details[1][commerce_code]'),
+            'buy_order': request.form.get('details[1][buy_order]'),
+            'amount': request.form.get('details[1][amount]')
+        }
+    ]
+    tx = MallTransaction()
+    resp = tx.create(
         buy_order=buy_order,
         session_id=session_id,
-        return_url=return_url,
+        card_number=card_number,
+        card_expiration_date=card_expiration_date,
         details=details,
+        cvv=123
     )
-    
-    print(response)
-    return redirect(url_for('templates/webpay/plus_mall/created.html', details=details, response=response))
 
-
-
-
+    return render_template('./webpay/plus_mall/created.html', resp=resp, req=request.form, dt=dt, details=details, timedelta=timedelta)
 
 @app.route('/precioDollar')
 def get_exchange_rate():
@@ -399,6 +408,9 @@ def get_exchange_rate():
      
     else:
         return 'Error al obtener el tipo de cambio', 500
+
+
+
     
 
 
